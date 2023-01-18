@@ -285,9 +285,9 @@ namespace lexer{
                 captured+="''";
                 tripplecolon = false;
                 if(strln){
-                  result.push_back(token(token::types::TrippleString,captured,line-strln,ogcol+2));
+                  result.push_back(token(token::types::TrippleString,captured,line-strln,ogcol));
                 }else{
-                  result.push_back(token(token::types::TrippleString,captured,line,column-captured.length()+2));
+                  result.push_back(token(token::types::TrippleString,captured,line,column-captured.length()+3));
                 }
                 hasogccolbeendone=false;
                 captured="";
@@ -312,9 +312,9 @@ namespace lexer{
                 captured+="``";
                 tripplebentcolon = false;
                 if(strln){
-                  result.push_back(token(token::types::TrippleString,captured,line-strln,ogcol+2));
+                  result.push_back(token(token::types::TrippleString,captured,line-strln,ogcol));
                 }else{
-                  result.push_back(token(token::types::TrippleString,captured,line,column-captured.length()+2));
+                  result.push_back(token(token::types::TrippleString,captured,line,column-captured.length()+3));
                 }
                 hasogccolbeendone=false;
                 captured="";
@@ -339,9 +339,9 @@ namespace lexer{
                 captured+="\"\"";
                 trippledoublecolon = false;
                 if(strln){
-                  result.push_back(token(token::types::TrippleString,captured,line-strln,ogcol+2));
+                  result.push_back(token(token::types::TrippleString,captured,line-strln,ogcol));
                 }else{
-                  result.push_back(token(token::types::TrippleString,captured,line,column-captured.length()+2));
+                  result.push_back(token(token::types::TrippleString,captured,line,column-captured.length()+3));
                 }
                 hasogccolbeendone=false;
                 captured="";

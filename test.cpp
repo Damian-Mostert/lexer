@@ -1,4 +1,4 @@
-#include"lexer.hpp"
+#include"include/lexer.hpp"
 #include <fstream>
 #include <iostream>
 
@@ -7,7 +7,11 @@ int main(int argc,char*args[]){
     string script((istreambuf_iterator<char>(file)),istreambuf_iterator<char>());
     file.close();
     auto result = lexer::lex(script);
-    for(auto&i:result.result){
-      cout<<lexer::token_to_String(i,"\033[91m")<<endl;
+    if(result.Error){
+      for(int i = 0;i<result.ErrorMessages.size();i++){
+
+        cout<<result.ErrorPositions[i].line<<":"<<result.ErrorPositions[i].column<<"\t"<<result.ErrorMessages[i]<<endl;
+      }
     }
+    cout<<lexer::tokens_to_string(result.result,"\033[95m");
 }

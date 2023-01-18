@@ -1,0 +1,28 @@
+vector<string>BooleanWords{
+  "true",
+  "false",
+  "null",
+  "undefined"
+};
+vector<string>ConditionalWords{
+  "for",
+  "if",
+  "try",
+  "while"
+  "class",
+};
+vector<string>ConditionalWordsWithNoLineAtStart{
+  "else",
+  "catch",
+};
+/* comming soon
+vector<string>DualOperators{
+  "++",
+  "+=",
+  "-="
+};
+vector<string>TriOperators{
+  "==",
+  "!=="
+};
+*/

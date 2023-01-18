@@ -1,7 +1,7 @@
 # lexer
 example :
 ```cpp
-#include"lexer.hpp"
+#include"include/lexer.hpp"
 #include <fstream>
 #include <iostream>
 int main(int argc,char*args[]){
@@ -10,8 +10,11 @@ int main(int argc,char*args[]){
     file.close();
     auto result = lexer::lex(script);
     if(result.Error){
-      cout<<result.ErrorPosition.line<<":"<<result.ErrorPosition.column<<"\t"<<result.ErrorMessage<<endl;
+      for(int i = 0;i<result.ErrorMessages.size();i++){
+        cout<<result.ErrorPositions[i].line<<":"<<result.ErrorPositions[i].column<<"\t"<<result.ErrorMessages[i]<<endl;
+      }
     }
     cout<<lexer::tokens_to_string(result.result,"\033[95m");
 }
+
 ```

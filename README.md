@@ -43,3 +43,47 @@ int main(int argc,char*args[]){
 ```
 
 to configure lexer check out **[lexer config](/include/lexer)**
+
+### using the token class :
+
+token class look
+
+```cpp
+  struct token{
+  public:
+    string value;
+    struct pos{
+      int line=0;
+      int column=0;
+    }position;
+    enum types{
+      TrippleString,
+      String,
+      Int,
+      Boolean,
+      Condition,
+      Id,
+      Operator,
+      Bracket,
+      LineCancel,
+      ScriptCancel,
+      Line,
+      Comma,
+      UnclosedString,
+      Double,
+      UnclosedScriptCancel,
+      InvalidOperator,
+      InvalidDouble,
+    }type;
+    token(){}
+    token(types NewType,string NewValue,int NewLine,int NewColumn){
+      value=NewValue;
+      type=NewType;
+      position.line=NewLine;
+      position.column=NewColumn;
+    }
+  };
+
+```
+
+

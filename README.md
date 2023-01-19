@@ -13,9 +13,23 @@ int main(int argc,char*args[]){
     string script((istreambuf_iterator<char>(file)),istreambuf_iterator<char>());
     file.close();
     auto result = lexer::lex(script);
-    cout<<lexer::tokens_to_string(result.result,"\033[95m");
+    cout<<lexer::tools::tokens_to_string(result.result,"\033[95m");
 }
+```
+your output should be something like this : 
 
+<br> file data :
+
+```
+string z = "hello world"
+```
+
+```cmd
+<Id line=0 column=0>string</Id>
+<Id line=0 column=7>z</Id>
+<Operator line=0 column=9>=</Operator>
+<String line=0 column=11>"hello world"</String>
+<Line line=0 column=24>\n</Line>
 ```
 
 example with error handeling :
@@ -44,6 +58,27 @@ int main(int argc,char*args[]){
 }
 
 ```
+your output should be something like this :
+
+<br> file data :
+
+```
+string z = "hello world
+```
+
+```cmd
+0:11	unclosed string
+ 1 | string z = "hello world
+   |            ^ unclosed string
+<Id line=0 column=0>string</Id>
+<Id line=0 column=7>z</Id>
+<Operator line=0 column=9>=</Operator>
+<UnclosedString line=0 column=11>"</UnclosedString>
+<Id line=0 column=11>hello</Id>
+<Id line=0 column=17>world</Id>
+<Line line=0 column=22>\n</Line>
+```
+
 
 ### to configure lexer check out the **[include/lexer](/include/lexer)** directory
 
@@ -126,6 +161,36 @@ namespace tools{
       }
       return res;
     };
+    template<typename pos>string create_script_pointer(string message,string script,pos position){
+      string e;
+      vector<string>lines;
+      string line;
+      for(char&i:script){
+        if(i=='\n'){
+          lines.push_back(line);
+          line="";
+        }else{
+          line+=i;
+        }
+      }
+      if(lines.size()>position.line-1){e+=" "+to_string(position.line)+" | "+lines[position.line-1]+"\033[0m\n";}
+      e+=" "+to_string(position.line+1)+" | "+lines[position.line]+"\n";
+      int x = 0;e+="   | ";
+      for(char&i:lines[position.line]){
+        if(x<position.column){
+          if(i=='\t'){
+            e+=i;
+          }else{
+            e+=' ';
+          }
+        }
+        x++;
+      }
+      e+="^ "+message+"\n";
+      if(lines.size()>position.line+1){e+=" "+to_string(position.line+2)+" | "+lines[position.line+1]+"\033[0m\n";}
+      return e;
+    }
+  }
 };
 ```
 

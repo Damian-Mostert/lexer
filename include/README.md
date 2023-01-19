@@ -7,4 +7,4 @@ or
 ```cpp
 #include<lexer.hpp>
 ```
-### to configure lexer check out the **[lexer](/lexer)** directory
+### to configure lexer check out the **[lexer](include/lexer)** directory

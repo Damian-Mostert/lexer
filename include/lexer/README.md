@@ -1,6 +1,6 @@
 ## lexer configuration
 file config.hpp
-```
+```cpp
 vector<string>BooleanWords{"true","false","null","undefined"};
 
 vector<string>ConditionalWords{"for","if","try","while""class","is","operator","function"};

@@ -1,1 +1,1 @@
-# to use lexer in your project you need the lexer.hpp file and lexer directory
+### to use lexer in your project you need the lexer.hpp file and lexer directory in your include path

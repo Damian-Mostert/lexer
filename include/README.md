@@ -3,7 +3,7 @@ then just simply use :
 ```cpp
 #include"include/lexer.hpp"
 ```
-or
+or if your using a command like 'g++ file.cpp -o file -I./include' :
 ```cpp
 #include<lexer.hpp>
 ```

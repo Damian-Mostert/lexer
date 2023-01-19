@@ -238,8 +238,8 @@ namespace lexer{
                   }
                 }else{
                   ErrorMessages.push_back("unclosed script cancel");
-                  ErrorPositions.push_back({line-strln,ogcol+1});
-                  result.push_back(token(token::types::UnclosedScriptCancel,string("")+captured[0]+captured[1],line-strln,ogcol+1));
+                  ErrorPositions.push_back({line-strln,ogcol});
+                  result.push_back(token(token::types::UnclosedScriptCancel,string("")+captured[0]+captured[1],line-strln,ogcol));
                   Error = true;
                 }
                 c=1;

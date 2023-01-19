@@ -92,6 +92,18 @@ string z = "hello world
 <Line line=0 column=22>\n</Line>
 ```
 
+### lex output structure :
+
+```cpp
+{
+    bool Error=false;
+    vector<string> ErrorMessages;
+    vector<token::pos>ErrorPositions;
+    vector<token>result;
+}
+```
+
+
 ### using lexer tokens :
 
 token structure :
@@ -171,7 +183,7 @@ namespace tools{
       }
       return res;
     };
-    template<typename pos>string create_script_pointer(string message,string script,pos position){
+string create_script_pointer(string message,string script,token::pos position){
       string e;
       vector<string>lines;
       string line;
@@ -200,7 +212,6 @@ namespace tools{
       if(lines.size()>position.line+1){e+=" "+to_string(position.line+2)+" | "+lines[position.line+1]+"\033[0m\n";}
       return e;
     }
-  }
 };
 ```
 

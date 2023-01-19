@@ -2,6 +2,9 @@
 
 this is a lexer/tokenizer that can be configured for diffrent uses
 
+
+### to configure lexer check out the **[include/lexer](/include/lexer)** directory
+
 example :
 ```cpp
 #include"include/lexer.hpp"
@@ -78,9 +81,6 @@ string z = "hello world
 <Id line=0 column=17>world</Id>
 <Line line=0 column=22>\n</Line>
 ```
-
-
-### to configure lexer check out the **[include/lexer](/include/lexer)** directory
 
 ### using lexer tokens :
 

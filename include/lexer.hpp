@@ -253,7 +253,7 @@ namespace lexer{
               if(Error){
                 for(c;c<captured.length();c++){n+=captured[c];}
                 letter -=captured.length();
-                column= ogcol;
+                column= ogcol+1;
                 line -=strln;
                 prev='\0';
                 colonescape=0;

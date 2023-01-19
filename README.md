@@ -50,8 +50,8 @@ int main(int argc,char*args[]){
       for(int i = 0;i<result.ErrorMessages.size();i++){
         //print error data
         cout<<result.ErrorPositions[i].line<<":"<<result.ErrorPositions[i].column<<"\t"<<result.ErrorMessages[i]<<endl;
-        cout<<lexer::tools::create_script_pointer(result.ErrorMessages[i],script,result.ErrorPositions[i]);    
         //create error pointer
+        cout<<lexer::tools::create_script_pointer(result.ErrorMessages[i],script,result.ErrorPositions[i]);    
       }
     }
     cout<<lexer::tools::tokens_to_string(result.result,"\033[96m");

@@ -12,10 +12,15 @@ example :
 #include <iostream>
 using namespace std;
 int main(int argc,char*args[]){
+    //read input file
     fstream file(args[1]);
+    //convert file to string
     string script((istreambuf_iterator<char>(file)),istreambuf_iterator<char>());
+    //close read file
     file.close();
+    //lex file
     auto result = lexer::lex(script);
+    //print tokens
     cout<<lexer::tools::tokens_to_string(result.result,"\033[95m");
 }
 ```
@@ -43,9 +48,13 @@ example with error handeling :
 #include <iostream>
 using namespace std;
 int main(int argc,char*args[]){
+    //read input file
     fstream file(args[1]);
+    //convert file to string
     string script((istreambuf_iterator<char>(file)),istreambuf_iterator<char>());
+    //close read file
     file.close();
+    //lex file
     auto result = lexer::lex(script);
     //check for error
     if(result.Error){
@@ -53,10 +62,11 @@ int main(int argc,char*args[]){
       for(int i = 0;i<result.ErrorMessages.size();i++){
         //print error data
         cout<<result.ErrorPositions[i].line<<":"<<result.ErrorPositions[i].column<<"\t"<<result.ErrorMessages[i]<<endl;
-        //create error pointer
+        //create and print error pointer
         cout<<lexer::tools::create_script_pointer(result.ErrorMessages[i],script,result.ErrorPositions[i]);    
       }
     }
+    //print all tokens
     cout<<lexer::tools::tokens_to_string(result.result,"\033[96m");
 }
 

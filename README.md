@@ -42,7 +42,7 @@ int main(int argc,char*args[]){
 
 ```
 
-### to configure lexer check out the **[lexer](/include/lexer)** directory
+### to configure lexer check out the **[include/lexer](/include/lexer)** directory
 
 ### using lexer tokens :
 

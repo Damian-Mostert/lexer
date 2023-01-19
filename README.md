@@ -46,7 +46,7 @@ to configure lexer check out **[lexer config](/include/lexer)**
 
 ### using the token class :
 
-token class look
+token structure :
 
 ```cpp
   struct token{

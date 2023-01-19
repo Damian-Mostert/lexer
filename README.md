@@ -17,7 +17,7 @@ int main(int argc,char*args[]){
 
 ```
 
-exapmle with error handeling :
+example with error handeling :
 
 ```cpp
 #include"include/lexer.hpp"

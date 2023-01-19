@@ -1,5 +1,8 @@
 # lexer
-this is a lexer/tokenizer that can be configured for diffrent uses, built in and for C++
+this is a lexer/tokenizer that can be configured for diffrent uses, built in and for C++.
+
+#### please note
+this readme file is out of date, as thiere are new configuration options and token types built on, however everything in this readme file will still work and is relative information.
 ### to configure lexer check out the **[include/lexer](/include/lexer)** directory
 ### to use lexer in your project you need the lexer.hpp file and lexer directory in your include path
 then just simply use :

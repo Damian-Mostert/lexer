@@ -71,8 +71,53 @@ namespace lexer{
       return res;
     };
     token parse_string(token in){
-      token result;
-
+      token result = in;
+      if(in.type==token::types::String){
+        string input_string;
+        bool escape = false;
+        int skip=0;
+        for(int i = 1;i<in.value.length()-1;i++){
+          if(skip){
+            skip--;
+          }else if(escape){
+            if(in.value[i] == 'n'){
+              input_string+="\n";
+            }else if(in.value[i] == 'v'){
+              input_string+="\v";
+            }else if(in.value[i] == 't'){
+              input_string+="\t";
+            }else if(in.value[i] == 'f'){
+              input_string+="\f";
+            }else if(in.value[i] == '0'){
+              if(i+1>in.value.length()){
+                if(i+2>in.value.length()){
+                  if(in.value[i+1]=='3'&&in.value[i+2]=='3'){
+                    skip+=2;
+                    input_string+="\033";
+                  }else if(in.value[i+1]=='X'&&in.value[i+2]=='b'){
+                    skip+=2;
+                    input_string+="\0Xb";      
+                  }else{
+                    input_string+="\0";
+                  }
+                }else{
+                  input_string+="\0";
+                }
+              }else{
+                input_string+="\0";
+              }
+            }else{
+              input_string+=in.value[i];
+            }
+            escape=false;
+          }else if(in.value[i] == '\\'){
+            escape=true;
+          }else{
+            input_string+=in.value[i];
+          }
+        }
+        result.value=input_string;
+      }
       return result;
     }
     token parse_tripple_string(token in){

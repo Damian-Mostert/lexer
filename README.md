@@ -7,6 +7,7 @@ example :
 #include"include/lexer.hpp"
 #include <fstream>
 #include <iostream>
+using namespace std;
 int main(int argc,char*args[]){
     fstream file(args[1]);
     string script((istreambuf_iterator<char>(file)),istreambuf_iterator<char>());

@@ -80,7 +80,7 @@ namespace lexer{
 
       return result;
     }
-    template<typename pos>string create_script_pointer(string message,string script,pos position){
+    string create_script_pointer(string message,string script,token::pos position){
       string e;
       vector<string>lines;
       string line;
@@ -176,8 +176,7 @@ namespace lexer{
     #include"lexer/config.hpp"
     bool Error=false;
     vector<string> ErrorMessages;
-    struct pos{int line=0;int column=0;};
-    vector<pos>ErrorPositions;
+    vector<token::pos>ErrorPositions;
     vector<token>result;
     lex(){}
     lex(string data){

@@ -1,5 +1,5 @@
 ### to use lexer in your project you need the lexer.hpp file and lexer directory in your include path
-then just simly use :
+then just simply use :
 ```cpp
 #include"include/lexer.hpp"
 ```

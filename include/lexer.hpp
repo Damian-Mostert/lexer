@@ -27,7 +27,12 @@ namespace lexer{
       UnclosedScriptCancel,
       InvalidOperator,
       InvalidDouble,
+      Space,
+      Parentheses,
+      Squere,
+      Curly
     }type;
+    vector<token>tokens;
     token(){}
     token(types NewType,string NewValue,int NewLine,int NewColumn){
       value=NewValue;
@@ -56,17 +61,38 @@ namespace lexer{
         case 14:return"UnclosedScriptCancel";break;
         case 15:return"InvalidOperator";break;
         case 16:return"InvalidNumber";break;
+        case 17:return"Space";break;
+        case 18:return"Parentheses";break;
+        case 19:return"Squere";break;
+        case 20:return"Curly";break;
       }
       return "Null";
     }
-    string token_to_string(token tk,string col){
-      string t=get_token_type_as_string(tk);
-      return col+"<"+t+" line="+to_string(tk.position.line)+" column="+to_string(tk.position.column)+">\033[0;0;0m"+string(tk.value)+col+"</"+t+">\033[0;0;0m";
-    }
+    class token_to_string{
+    public:
+      string res;
+      token_to_string(token tk,string col){
+        res = token_to_string(tk,col,0).res;
+      }
+      token_to_string(token tk,string col,int deep){
+        string t=get_token_type_as_string(tk);
+        string tbs="";
+        for(int i =0;i<deep;i++){tbs+="\t";}
+        if(tk.type==token::types::Parentheses||tk.type==token::types::Squere||tk.type==token::types::Curly){
+          res=tbs+col+"<"+t+" line="+to_string(tk.position.line)+" column="+to_string(tk.position.column)+">\033[0;0;0m\n";
+          for(auto&i:tk.tokens){
+            res+=token_to_string(i,col,deep+1).res;
+          }
+          res+=tbs+col+"</"+t+">\033[0;0;0m\n";
+        }else{
+          res =  tbs+col+"<"+t+" line="+to_string(tk.position.line)+" column="+to_string(tk.position.column)+">\033[0;0;0m"+string(tk.value)+col+"</"+t+">\033[0;0;0m\n";
+        }
+      }
+    };
     string tokens_to_string(vector<token>tks,string col){
       string res;
       for(token&i:tks){
-        res+=token_to_string(i,col)+"\n";
+        res+=token_to_string(i,col).res;
       }
       return res;
     };
@@ -96,7 +122,7 @@ namespace lexer{
                     input_string+="\033";
                   }else if(in.value[i+1]=='X'&&in.value[i+2]=='b'){
                     skip+=2;
-                    input_string+="\0Xb";      
+                    input_string+="\0Xb";
                   }else{
                     input_string+="\0";
                   }
@@ -225,10 +251,19 @@ namespace lexer{
     vector<token>result;
     lex(){}
     lex(string data){
+      lex s(data,0,0,0);
+      Error=s.Error;
+      ErrorMessages=s.ErrorMessages;
+      ErrorPositions=s.ErrorPositions;
+      result=s.result;
+    }
+    lex(string data,int letter,int line,int column){
       char prev='\0';
-      int line=0;
-      int column=0;
-      int letter=0;
+      token::pos bracket_start;
+      int bracket_start_letter = 0;
+      int parentheses = 0;
+      int squere = 0;
+      int curly = 0;
       int colonescape=0;
       int colon=0;
       int doublecolon=0;
@@ -247,6 +282,7 @@ namespace lexer{
       int badnumber=0;
       int DoubleNumber=0;
       int hasogccolbeendone=0;
+      string firstchuck;
       for(int o =0;o<=data.size();o++){
         char chuck = data[o];
         auto no_String = [colon,doublecolon,bentcolon,tripplecolon,trippledoublecolon,tripplebentcolon,colonescape](){
@@ -264,16 +300,35 @@ namespace lexer{
           return true;
         };
         if(o==data.size()){
-          if(captured.length()){
-            if(!no_String()||scriptCancel){
+          if(captured.length()||parentheses||curly||squere){
+            if(!no_String()||scriptCancel||parentheses||curly||squere){
               string n;
               int c;
-              if(tripplebentcolon||trippledoublecolon||tripplecolon){
+              if(parentheses||curly||squere){
+                captured = firstchuck+captured;
+                Error=true;
+                ErrorMessages.push_back("unclosed bracket");
+                ErrorPositions.push_back(bracket_start);
+                string t;
+                if(parentheses){
+                  t="(";
+                }else if(curly){
+                  t="{";
+                }else if(squere){
+                  t="[";
+                }
+                result.push_back(token(token::types::Bracket,t,bracket_start.line,bracket_start.column));
+                c=0;
+                strln=0;
+                line=bracket_start.line;
+                ogcol = bracket_start.column-1;
+              }else if(tripplebentcolon||trippledoublecolon||tripplecolon){
                 ErrorMessages.push_back("unclosed tripple string");
                 ErrorPositions.push_back({line-strln,ogcol+1});
                 result.push_back(token(token::types::UnclosedString,string("")+captured[0]+captured[1]+captured[2],line-strln,ogcol+1));
                 c=2;
                 Error = true;
+                ogcol+=2;
               }else if(scriptCancel){
                 if(EnableAutoCLoseStarDashCancel){
                   result.push_back(token(token::types::ScriptCancel,captured+"*/",line-strln,ogcol+1));
@@ -300,6 +355,9 @@ namespace lexer{
                 column= ogcol+1;
                 line -=strln;
                 prev='\0';
+                parentheses = 0;
+                squere = 0;
+                curly = 0;
                 colonescape=0;
                 colon=0;
                 doublecolon=0;
@@ -335,6 +393,93 @@ namespace lexer{
           }
         }else if(skip){
           skip--;
+        }else if(parentheses){
+          if(chuck == '('){
+            parentheses++;
+            captured+=chuck;
+          }else if(chuck == ')'){
+            parentheses--;
+            if(parentheses){
+              captured+=chuck;
+            }else if(!parentheses){
+              lex sub(captured,bracket_start_letter+1,bracket_start.line,bracket_start.column+1);
+              token Parentheses;
+              Parentheses.position = bracket_start;
+              Parentheses.type=token::types::Parentheses;
+              Parentheses.tokens = sub.result;
+              result.push_back(Parentheses);
+              if(sub.Error){
+                Error=true;
+                for(int x=0;x<sub.ErrorMessages.size();x++){
+                  ErrorMessages.push_back(sub.ErrorMessages[x]);
+                }
+                for(int x=0;x<sub.ErrorPositions.size();x++){
+                  ErrorPositions.push_back(sub.ErrorPositions[x]);
+                }
+              }
+              captured="";
+            }
+          }else{
+            captured+=chuck;
+          }
+        }else if(squere){
+          if(chuck == '['){
+            squere++;
+            captured+=chuck;
+          }else if(chuck == ']'){
+            squere--;
+            if(squere){
+              captured+=chuck;
+            }else if(!squere){
+              lex sub(captured,bracket_start_letter+1,bracket_start.line,bracket_start.column+1);
+              token Squere;
+              Squere.position = bracket_start;
+              Squere.type=token::types::Squere;
+              Squere.tokens = sub.result;
+              result.push_back(Squere);
+              if(sub.Error){
+                Error=true;
+                for(int x=0;x<sub.ErrorMessages.size();x++){
+                  ErrorMessages.push_back(sub.ErrorMessages[x]);
+                }
+                for(int x=0;x<sub.ErrorPositions.size();x++){
+                  ErrorPositions.push_back(sub.ErrorPositions[x]);
+                }
+              }
+              captured="";
+            }
+          }else{
+            captured+=chuck;
+          }
+        }else if(curly){
+          if(chuck == '{'){
+            curly++;
+            captured+=chuck;
+          }else if(chuck == '}'){
+            curly--;
+            if(curly){
+              captured+=chuck;
+            }else if(!curly){
+              lex sub(captured,bracket_start_letter+1,bracket_start.line,bracket_start.column+1);
+              token Curly;
+              Curly.position = bracket_start;
+              Curly.type=token::types::Curly;
+              Curly.tokens = sub.result;
+              result.push_back(Curly);
+              if(sub.Error){
+                Error=true;
+                for(int x=0;x<sub.ErrorMessages.size();x++){
+                  ErrorMessages.push_back(sub.ErrorMessages[x]);
+                }
+                for(int x=0;x<sub.ErrorPositions.size();x++){
+                  ErrorPositions.push_back(sub.ErrorPositions[x]);
+                }
+              }
+              captured="";
+            }
+          }else{
+            captured+=chuck;
+          }
         }else if(lineCancel||scriptCancel){
           if(lineCancel){
             if(chuck == '\n'){
@@ -457,13 +602,27 @@ namespace lexer{
               ogcol = column-captured.length();
               hasogccolbeendone=true;
             }
-          }else if(colon){
+          }
+          if(colon){
             if(chuck == '\''){
               colon = false;
               if(strln){
                 result.push_back(token(token::types::String,captured,line-strln,ogcol+1));
               }else{
                 result.push_back(token(token::types::String,captured,line,column-captured.length()+1));
+              }
+              hasogccolbeendone=false;
+              captured="";
+              strln=0;
+            }else if(!allowLinesInStrings&&chuck == '\n'){
+              Error=true;
+              ErrorMessages.push_back("unclosed string");
+              ErrorPositions.push_back({line,column});
+              colon = false;
+              if(strln){
+                result.push_back(token(token::types::UnclosedString,captured,line-strln,ogcol+1));
+              }else{
+                result.push_back(token(token::types::UnclosedString,captured,line,column-captured.length()+1));
               }
               hasogccolbeendone=false;
               captured="";
@@ -476,6 +635,19 @@ namespace lexer{
                 result.push_back(token(token::types::String,captured,line-strln,ogcol+1));
               }else{
                 result.push_back(token(token::types::String,captured,line,column-captured.length()+1));
+              }
+              hasogccolbeendone=false;
+              captured="";
+              strln=0;
+            }else if(!allowLinesInStrings&&chuck == '\n'){
+              Error=true;
+              ErrorMessages.push_back("unclosed string");
+              ErrorPositions.push_back({line,column});
+              doublecolon = false;
+              if(strln){
+                result.push_back(token(token::types::UnclosedString,captured,line-strln,ogcol+1));
+              }else{
+                result.push_back(token(token::types::UnclosedString,captured,line,column-captured.length()+1));
               }
               hasogccolbeendone=false;
               captured="";
@@ -507,6 +679,19 @@ namespace lexer{
               captured="";
               strln=0;
               skip+=2;
+            }else if(!allowLinesInTrippleStrings&&chuck == '\n'){
+              Error=true;
+              ErrorMessages.push_back("unclosed string");
+              ErrorPositions.push_back({line,column});
+              tripplecolon = false;
+              if(strln){
+                result.push_back(token(token::types::UnclosedString,captured,line-strln,ogcol+1));
+              }else{
+                result.push_back(token(token::types::UnclosedString,captured,line,column-captured.length()+1));
+              }
+              hasogccolbeendone=false;
+              captured="";
+              strln=0;
             }
           }else if(tripplebentcolon){
             if(chuck == '`'&&[](int i,string script){
@@ -534,6 +719,19 @@ namespace lexer{
               captured="";
               strln=0;
               skip+=2;
+            }else if(!allowLinesInTrippleStrings&&chuck == '\n'){
+              Error=true;
+              ErrorMessages.push_back("unclosed string");
+              ErrorPositions.push_back({line,column});
+              tripplebentcolon = false;
+              if(strln){
+                result.push_back(token(token::types::UnclosedString,captured,line-strln,ogcol+1));
+              }else{
+                result.push_back(token(token::types::UnclosedString,captured,line,column-captured.length()+1));
+              }
+              hasogccolbeendone=false;
+              captured="";
+              strln=0;
             }
           }else if(trippledoublecolon){
             if(chuck == '"'&&[](int i,string script){
@@ -561,6 +759,19 @@ namespace lexer{
               captured="";
               strln=0;
               skip+=2;
+            }else if(!allowLinesInTrippleStrings&&chuck == '\n'){
+              Error=true;
+              ErrorMessages.push_back("unclosed string");
+              ErrorPositions.push_back({line,column});
+              trippledoublecolon = false;
+              if(strln){
+                result.push_back(token(token::types::UnclosedString,captured,line-strln,ogcol+1));
+              }else{
+                result.push_back(token(token::types::UnclosedString,captured,line,column-captured.length()+1));
+              }
+              hasogccolbeendone=false;
+              captured="";
+              strln=0;
             }
           }else if(bentcolon){
             if(chuck == '`'){
@@ -569,6 +780,19 @@ namespace lexer{
                 result.push_back(token(token::types::String,captured,line-strln,ogcol+1));
               }else{
                 result.push_back(token(token::types::String,captured,line,column-captured.length()+1));
+              }
+              hasogccolbeendone=false;
+              captured="";
+              strln=0;
+            }else if(!allowLinesInStrings&&chuck == '\n'){
+              Error=true;
+              ErrorMessages.push_back("unclosed string");
+              ErrorPositions.push_back({line,column});
+              bentcolon = false;
+              if(strln){
+                result.push_back(token(token::types::UnclosedString,captured,line-strln,ogcol+1));
+              }else{
+                result.push_back(token(token::types::UnclosedString,captured,line,column-captured.length()+1));
               }
               hasogccolbeendone=false;
               captured="";
@@ -587,6 +811,16 @@ namespace lexer{
               }
             }else if(!NoLines&&chuck=='\n'){
               result.push_back(token(token::types::Line,"\\n",line,column));
+            }else if(!NoSpaces&&chuck==' '||chuck=='\t'||chuck=='\v'||chuck=='\f'){
+              string c = " ";
+              if(chuck=='\t'){
+                c = "\\t";
+              }else if(chuck=='\v'){
+                c = "\\v";
+              }else if(chuck=='\f'){
+                c = "\\f";
+              }
+              result.push_back(token(token::types::Space,c,line,column));
             }
           }else if(isalpha(chuck)||is_allowed_id_char_boolean(chuck)){
             if(number){
@@ -613,12 +847,40 @@ namespace lexer{
               captured+=chuck;
             }else
             #include"lexer/lex::push_captured.hpp"
-            if(chuck == '}'||chuck == ']'||chuck == ')'||chuck == '{'||chuck == '['||chuck == '('){
-              result.push_back(token(token::types::Bracket,string("")+chuck,line,column));
-              if(!AllowBrackets){
-                Error = true;
-                ErrorMessages.push_back("unexpected token");
-                ErrorPositions.push_back({line,column});
+            if(AllowBrackets&&(chuck == '}'||chuck == ']'||chuck == ')'||chuck == '{'||chuck == '['||chuck == '(')){
+              if(segmentizeBrackets){
+                if(chuck == '('){
+                  parentheses++;
+                  bracket_start_letter = letter;
+                  bracket_start.column = column;
+                  bracket_start.line = line;
+                  if(data.length()>o+1){
+                    firstchuck = data[o+1];
+                  }
+                }else if(chuck == '['){
+                  squere++;
+                  bracket_start_letter = letter;
+                  bracket_start.column = column;
+                  bracket_start.line = line;
+                  if(data.length()>o+1){
+                    firstchuck = data[o+1];
+                  }
+                }else if(chuck == '{'){
+                  curly++;
+                  bracket_start_letter = letter;
+                  bracket_start.column = column;
+                  bracket_start.line = line;
+                  if(data.length()>o+1){
+                    firstchuck = data[o+1];
+                  }
+                }else{
+                  result.push_back(token(token::types::Bracket,string("")+chuck,line,column));
+                  Error = true;
+                  ErrorMessages.push_back("unexpected bracket");
+                  ErrorPositions.push_back({line,column});
+                }
+              }else{
+                result.push_back(token(token::types::Bracket,string("")+chuck,line,column));
               }
             }else if(chuck == ';'||chuck == ','){
               result.push_back(token(token::types::Comma,string("")+chuck,line,column));
@@ -693,7 +955,6 @@ namespace lexer{
                   chuck == '.'||
                   chuck == '@'
                 ){
-                  //handel operator fixing
                   bool isValid = false;
                   string Operator;
                   if(data.size()>o+1){
@@ -780,8 +1041,6 @@ namespace lexer{
         letter++;
         prev = chuck;
       }
-
     }
   };
-
 };

@@ -8,7 +8,7 @@ vector<char>AllowedSymbolsInId{'$','_'};
 
 vector<string>ValidOperators{"+","-","*","/","=","?","<",">","!",":","%","&","."};
 
-vector<string>ValidDualOperators{"++","--","==","<=",">=","-=","+=","!=","&&"};
+vector<string>ValidDualOperators{"++","--","==","<=",">=","-=","+=","!=","&&","||"};
 
 vector<string>ValidTriOperators{"===","!==","..."};
 
@@ -30,14 +30,14 @@ int enableStrings = 1;
 
 int enableTrippleStrings = 1;
 
+int allowLinesInStrings = 1;
+
+int allowLinesInTrippleStrings = 1;
+
 int enableAutoLineRemoval = 1;
 
 int NoLines = 0;
 
-//upcomming updates
-//int segmentizeBrackets = 0;
-//int allowLinesInStrings = 1;
-//int allowLinesInTrippleStrings = 1;
-//int NoSpaces = 1;
-//int autoTabs = 1;
-//int autoSpaceRemoval = 0;
+int NoSpaces = 1;
+
+int segmentizeBrackets = 1;

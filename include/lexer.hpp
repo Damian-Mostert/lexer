@@ -1,4 +1,3 @@
-#include <cstring>
 #include<string>
 #include<vector>
 namespace lexer{
@@ -71,17 +70,46 @@ namespace lexer{
       }
       return res;
     };
-    string parse_string(){
+    token parse_string(token in){
+      token result;
 
+      return result;
     }
-    string parse_tripple_string(){
+    token parse_tripple_string(token in){
+      token result;
 
+      return result;
     }
-    string create_script_pointer(){
-
+    template<typename pos>string create_script_pointer(string message,string script,pos position){
+      string e;
+      vector<string>lines;
+      string line;
+      for(char&i:script){
+        if(i=='\n'){
+          lines.push_back(line);
+          line="";
+        }else{
+          line+=i;
+        }
+      }
+      if(lines.size()>position.line-1){e+=" "+to_string(position.line)+" | "+lines[position.line-1]+"\033[0m\n";}
+      e+=" "+to_string(position.line+1)+" | "+lines[position.line]+"\n";
+      int x = 0;e+="   | ";
+      for(char&i:lines[position.line]){
+        if(x<position.column){
+          if(i=='\t'){
+            e+=i;
+          }else{
+            e+=' ';
+          }
+        }
+        x++;
+      }
+      e+="^ "+message+"\n";
+      if(lines.size()>position.line+1){e+=" "+to_string(position.line+2)+" | "+lines[position.line+1]+"\033[0m\n";}
+      return e;
     }
   }
-
   class lex{
     bool is_condition(string captured){
       if(

@@ -44,7 +44,7 @@ int main(int argc,char*args[]){
 
 to configure lexer check out **[lexer config](/include/lexer)**
 
-### using the token class :
+### using lexer tokens :
 
 token structure :
 
